@@ -11,9 +11,21 @@ import Groups from "./pages/Groups";
 import Chat from "./pages/Chat";
 import Files from "./pages/Files";
 import Schedule from "./pages/Schedule";
-import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+// NotFound component
+const NotFound = () => {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">404</h1>
+        <p className="text-gray-600 mb-4">Page not found</p>
+        <a href="/" className="text-blue-600 hover:underline">Go back home</a>
+      </div>
+    </div>
+  );
+};
 
 const AppContent = () => {
   const location = useLocation();
@@ -31,7 +43,6 @@ const AppContent = () => {
         <Route path="/chat" element={<Chat />} />
         <Route path="/files" element={<Files />} />
         <Route path="/schedule" element={<Schedule />} />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
