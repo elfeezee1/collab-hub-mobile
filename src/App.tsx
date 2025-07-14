@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import Navigation from "./components/Navigation";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -31,7 +31,7 @@ const NotFound = () => {
 
 const AppContent = () => {
   const location = useLocation();
-  const showNavigation = location.pathname !== '/' && location.pathname !== '/auth';
+  const showNavigation = location.pathname !== '/' && location.pathname !== '/auth' && location.pathname !== '/login';
 
   return (
     <div className={showNavigation ? 'pt-16 lg:pt-20 pb-20 lg:pb-0' : ''}>
@@ -39,6 +39,7 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/login" element={<Navigate to="/auth" replace />} />
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <Dashboard />
@@ -60,6 +61,11 @@ const AppContent = () => {
           </ProtectedRoute>
         } />
         <Route path="/chat" element={
+          <ProtectedRoute>
+            <Chat />
+          </ProtectedRoute>
+        } />
+        <Route path="/messages" element={
           <ProtectedRoute>
             <Chat />
           </ProtectedRoute>
