@@ -68,24 +68,45 @@ const Dashboard = () => {
   const { data: recentMessages } = useQuery({
     queryKey: ['recent-messages', user?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      const groupIds = (await supabase
+        .from('group_members')
+        .select('group_id')
+        .eq('user_id', user?.id)
+      ).data?.map(g => g.group_id) || [];
+      
+      if (!groupIds.length) return [];
+
+      // Get messages
+      const { data: messagesData } = await supabase
         .from('messages')
-        .select(`
-          *,
-          study_groups(name),
-          profiles(full_name)
-        `)
-        .in('group_id',
-          (await supabase
-            .from('group_members')
-            .select('group_id')
-            .eq('user_id', user?.id)
-          ).data?.map(g => g.group_id) || []
-        )
+        .select('*')
+        .in('group_id', groupIds)
         .order('created_at', { ascending: false })
         .limit(5);
       
-      return data || [];
+      if (!messagesData?.length) return [];
+
+      // Get group names
+      const { data: groupsData } = await supabase
+        .from('study_groups')
+        .select('id, name')
+        .in('id', groupIds);
+
+      // Get profiles
+      const userIds = [...new Set(messagesData.map(m => m.user_id))];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', userIds);
+
+      // Combine data
+      const messagesWithData = messagesData.map(message => ({
+        ...message,
+        study_groups: groupsData?.find(g => g.id === message.group_id),
+        profiles: profilesData?.find(p => p.id === message.user_id)
+      }));
+      
+      return messagesWithData;
     },
     enabled: !!user?.id
   });

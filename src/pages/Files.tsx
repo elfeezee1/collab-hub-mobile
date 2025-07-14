@@ -27,18 +27,37 @@ const Files = () => {
 
       const groupIds = groupMembers.map(g => g.group_id);
       
-      const { data, error } = await supabase
+      // Get files
+      const { data: filesData, error } = await supabase
         .from('shared_files')
-        .select(`
-          *,
-          study_groups(name),
-          profiles!shared_files_uploaded_by_fkey(full_name)
-        `)
+        .select('*')
         .in('group_id', groupIds)
         .order('uploaded_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      if (!filesData?.length) return [];
+
+      // Get group names
+      const { data: groupsData } = await supabase
+        .from('study_groups')
+        .select('id, name')
+        .in('id', groupIds);
+
+      // Get profiles
+      const userIds = [...new Set(filesData.map(f => f.uploaded_by))];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', userIds);
+
+      // Combine data
+      const filesWithData = filesData.map(file => ({
+        ...file,
+        study_groups: groupsData?.find(g => g.id === file.group_id),
+        profiles: profilesData?.find(p => p.id === file.uploaded_by)
+      }));
+
+      return filesWithData;
     },
     enabled: !!user?.id
   });

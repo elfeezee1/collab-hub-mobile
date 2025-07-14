@@ -39,17 +39,35 @@ const Chat = () => {
     queryKey: ['messages', groupId],
     queryFn: async () => {
       if (!groupId) return [];
-      const { data, error } = await supabase
+      
+      // First get messages
+      const { data: messagesData, error: messagesError } = await supabase
         .from('messages')
-        .select(`
-          *,
-          profiles!messages_user_id_fkey(full_name, username)
-        `)
+        .select('*')
         .eq('group_id', groupId)
         .order('created_at', { ascending: true });
       
-      if (error) throw error;
-      return data;
+      if (messagesError) throw messagesError;
+      if (!messagesData?.length) return [];
+      
+      // Get unique user IDs
+      const userIds = [...new Set(messagesData.map(m => m.user_id))];
+      
+      // Get profiles for those users
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name, username')
+        .in('id', userIds);
+      
+      if (profilesError) throw profilesError;
+      
+      // Combine the data
+      const messagesWithProfiles = messagesData.map(message => ({
+        ...message,
+        profiles: profilesData?.find(p => p.id === message.user_id)
+      }));
+      
+      return messagesWithProfiles;
     },
     enabled: !!groupId
   });
