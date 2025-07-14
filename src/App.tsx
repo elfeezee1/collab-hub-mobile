@@ -12,6 +12,8 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Groups from "./pages/Groups";
 import Chat from "./pages/Chat";
+import Conversations from "./pages/Conversations";
+import PrivateChat from "./pages/PrivateChat";
 import Files from "./pages/Files";
 import Schedule from "./pages/Schedule";
 
@@ -65,9 +67,14 @@ const AppContent = () => {
             <Chat />
           </ProtectedRoute>
         } />
-        <Route path="/messages" element={
+        <Route path="/conversations" element={
           <ProtectedRoute>
-            <Chat />
+            <Conversations />
+          </ProtectedRoute>
+        } />
+        <Route path="/conversations/:conversationId" element={
+          <ProtectedRoute>
+            <PrivateChat />
           </ProtectedRoute>
         } />
         <Route path="/files" element={

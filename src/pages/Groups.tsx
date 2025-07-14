@@ -25,7 +25,7 @@ const Groups = () => {
     subject: ''
   });
 
-  // Fetch groups the user is a member of
+  // Fetch all groups with member info
   const { data: groups, isLoading } = useQuery({
     queryKey: ['groups', user?.id],
     queryFn: async () => {
@@ -33,13 +33,18 @@ const Groups = () => {
         .from('study_groups')
         .select(`
           *,
-          group_members!inner(role),
-          group_members(count)
-        `)
-        .eq('group_members.user_id', user?.id);
+          group_members(user_id, role)
+        `);
 
       if (error) throw error;
-      return data;
+      
+      // Add member count and user's membership status
+      return data?.map(group => ({
+        ...group,
+        memberCount: group.group_members?.length || 0,
+        userIsMember: group.group_members?.some(member => member.user_id === user?.id) || false,
+        userRole: group.group_members?.find(member => member.user_id === user?.id)?.role
+      })) || [];
     },
     enabled: !!user?.id
   });
@@ -101,6 +106,40 @@ const Groups = () => {
       return;
     }
     createGroupMutation.mutate(newGroup);
+  };
+
+  // Join group mutation
+  const joinGroupMutation = useMutation({
+    mutationFn: async (groupId: string) => {
+      const { error } = await supabase
+        .from('group_members')
+        .insert({
+          group_id: groupId,
+          user_id: user?.id,
+          role: 'member'
+        });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['groups'] });
+      toast({
+        title: "Success",
+        description: "Joined group successfully!"
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to join group. Please try again.",
+        variant: "destructive"
+      });
+      console.error(error);
+    }
+  });
+
+  const handleJoinGroup = (groupId: string) => {
+    joinGroupMutation.mutate(groupId);
   };
 
   const handleJoinChat = (groupId: string) => {
@@ -191,16 +230,33 @@ const Groups = () => {
               <CardContent>
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-sm text-gray-600">
-                    {group.group_members?.length || 0} members
+                    {group.memberCount} members
                   </span>
+                  {group.userRole && (
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                      {group.userRole}
+                    </span>
+                  )}
                 </div>
-                <Button 
-                  className="w-full" 
-                  onClick={() => handleJoinChat(group.id)}
-                >
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  Open Chat
-                </Button>
+                {group.userIsMember ? (
+                  <Button 
+                    className="w-full" 
+                    onClick={() => handleJoinChat(group.id)}
+                  >
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    Open Chat
+                  </Button>
+                ) : (
+                  <Button 
+                    className="w-full" 
+                    variant="outline"
+                    onClick={() => handleJoinGroup(group.id)}
+                    disabled={joinGroupMutation.isPending}
+                  >
+                    <Users className="mr-2 h-4 w-4" />
+                    {joinGroupMutation.isPending ? 'Joining...' : 'Join Group'}
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ))}

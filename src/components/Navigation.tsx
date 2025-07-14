@@ -27,7 +27,7 @@ const Navigation = () => {
   const navItems = [
     { path: '/dashboard', icon: Home, label: 'Dashboard' },
     { path: '/groups', icon: Users, label: 'Groups' },
-    { path: '/messages', icon: MessageSquare, label: 'Messages' },
+    { path: '/conversations', icon: MessageSquare, label: 'Messages' },
     { path: '/schedule', icon: Calendar, label: 'Schedule' },
     { path: '/files', icon: FileText, label: 'Files' },
   ];
