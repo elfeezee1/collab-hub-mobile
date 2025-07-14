@@ -43,7 +43,7 @@ const Chat = () => {
         .from('messages')
         .select(`
           *,
-          profiles(full_name, username)
+          profiles!messages_user_id_fkey(full_name, username)
         `)
         .eq('group_id', groupId)
         .order('created_at', { ascending: true });

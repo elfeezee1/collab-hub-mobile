@@ -32,7 +32,7 @@ const Files = () => {
         .select(`
           *,
           study_groups(name),
-          profiles(full_name)
+          profiles!shared_files_uploaded_by_fkey(full_name)
         `)
         .in('group_id', groupIds)
         .order('uploaded_at', { ascending: false });
