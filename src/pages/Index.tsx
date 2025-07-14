@@ -1,12 +1,13 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Users, MessageSquare, Calendar, FileText, Video, BookOpen, Zap, Shield, Smartphone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const features = [
     {
@@ -17,7 +18,7 @@ const Index = () => {
     },
     {
       icon: Video,
-      title: "Video Conferencing",
+      title: "Video Conferencing", 
       description: "Built-in video calls for remote study sessions and collaborative learning",
       color: "text-green-600"
     },
@@ -75,15 +76,23 @@ const Index = () => {
               StudyConnect
             </div>
             <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={() => navigate('/login')}>
-                Sign In
-              </Button>
-              <Button 
-                onClick={() => navigate('/dashboard')}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-              >
-                Get Started
-              </Button>
+              {user ? (
+                <Button onClick={() => navigate('/dashboard')}>
+                  Go to Dashboard
+                </Button>
+              ) : (
+                <>
+                  <Button variant="ghost" onClick={() => navigate('/auth')}>
+                    Sign In
+                  </Button>
+                  <Button 
+                    onClick={() => navigate('/auth')}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  >
+                    Get Started
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -111,10 +120,10 @@ const Index = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 
                 size="lg" 
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate(user ? '/dashboard' : '/auth')}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-3"
               >
-                Start Studying Together
+                {user ? 'Go to Dashboard' : 'Start Studying Together'}
               </Button>
               <Button size="lg" variant="outline" className="text-lg px-8 py-3">
                 Watch Demo
@@ -203,10 +212,10 @@ const Index = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               size="lg" 
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate(user ? '/dashboard' : '/auth')}
               className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-3"
             >
-              Get Started Free
+              {user ? 'Go to Dashboard' : 'Get Started Free'}
             </Button>
             <Button 
               size="lg" 
