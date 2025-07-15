@@ -152,16 +152,18 @@ const PrivateChat = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-4xl mx-auto">
+        {/* Back Navigation */}
+        <div className="mb-4">
+          <Button variant="ghost" onClick={() => navigate(-1)} className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+        </div>
+        
         <Card className="h-[calc(100vh-8rem)]">
           <CardHeader>
             <CardTitle className="flex items-center gap-3">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => navigate('/conversations')}
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
+              <MessageSquare className="h-5 w-5 text-blue-600" />
               {conversation?.otherParticipant && (
                 <>
                   <Avatar>

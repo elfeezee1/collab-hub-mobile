@@ -3,7 +3,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, MessageSquare, Calendar, FileText, Plus } from 'lucide-react';
+import { Users, MessageSquare, Calendar, FileText, Plus, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -122,6 +122,14 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-7xl mx-auto">
+        {/* Back Navigation */}
+        <div className="mb-4">
+          <Button variant="ghost" onClick={() => navigate(-1)} className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+        </div>
+        
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
